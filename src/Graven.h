@@ -2,6 +2,7 @@
 #define GRAVEN_H
 
 #include <SDL/SDL.h>
+#include <GL/gl.h>
 
 class Graven
 {

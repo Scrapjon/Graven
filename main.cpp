@@ -6,9 +6,9 @@
 int APIENTRY WinMain(HINSTANCE /* hinst */, HINSTANCE /* hinstprev */, PSTR /* cmd_line */, int /* cmd_show */)
 {
 
-    std::cout << "VIDEO GAME!\n";
+	std::cout << "VIDEO GAME!\n";
 
-    Graven &graven = Graven::Get();
+	Graven &graven = Graven::Get();
 
-    return graven.Run();
+	return graven.Run();
 }

@@ -12,6 +12,6 @@ for /R src %%f in (*.cpp) do (
 )
 
 echo Compiling...
-g++ -m32 -std=c++98 %SOURCES% -static-libstdc++ -Isrc -Ivendor/SDL/include -Lvendor/SDL/lib -lmingw32 -lSDLmain -lSDL -o %OUT%
+g++ -m32 -std=c++98 %SOURCES% -static-libstdc++ -Isrc -Ivendor/SDL/include -Lvendor/SDL/lib -lmingw32 -lopengl32 -lSDLmain -lSDL -o %OUT%
 
 endlocal
