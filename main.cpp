@@ -1,8 +1,14 @@
 #include <iostream>
+#include <windows.h>
 
-int main()
+#include "Graven.h"
+
+int APIENTRY WinMain(HINSTANCE /* hinst */, HINSTANCE /* hinstprev */, PSTR /* cmd_line */, int /* cmd_show */)
 {
+
     std::cout << "VIDEO GAME!\n";
 
-    return 0;
+    Graven &graven = Graven::Get();
+
+    return graven.Run();
 }
