@@ -86,6 +86,17 @@ typedef struct vec3_t
 			lhs.x * rhs.y - lhs.y * rhs.x);
 	}
 
+	static float Length(const vec3_t &a)
+	{
+		return std::sqrt(a | a);
+	}
+
+	static vec3_t Normalize(const vec3_t &a)
+	{
+		const float len = vec3_t::Length(a);
+		return (len > .0001f) ? a * (1.f / len) : a;
+	}
+
 	// Global Constants
 	static vec3_t X()
 	{
