@@ -66,19 +66,19 @@ void Player::HandleInput()
 		right_input += 1.f;
 	}
 
-	if (keystate[SDLK_g])
+	if (keystate[SDLK_KP8])
 	{
-		m_camera->AddYawPitch(0.f, 1.f);
+		m_camera->AddYawPitch(0.f, 2.f);
 	}
-	if (keystate[SDLK_v])
+	if (keystate[SDLK_KP5])
 	{
-		m_camera->AddYawPitch(0.f, -1.f);
+		m_camera->AddYawPitch(0.f, -2.f);
 	}
-	if (keystate[SDLK_z])
+	if (keystate[SDLK_KP4])
 	{
 		m_camera->AddYawPitch(-3.f, 0.f);
 	}
-	if (keystate[SDLK_c])
+	if (keystate[SDLK_KP6])
 	{
 		m_camera->AddYawPitch(3.f, 0.f);
 	}

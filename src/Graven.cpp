@@ -37,7 +37,7 @@ int Graven::Run()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	screen = SDL_SetVideoMode(g_start_width, g_start_height, 32, SDL_OPENGL | SDL_HWSURFACE);
+	screen = SDL_SetVideoMode(g_start_width, g_start_height, 32, SDL_OPENGL | SDL_HWSURFACE | SDL_RESIZABLE);
 
 	if (screen == NULL)
 	{
@@ -110,10 +110,32 @@ int Graven::Run()
 		// Handle Events
 		while (SDL_PollEvent(&event))
 		{
-
-			if (event.type == SDL_QUIT)
+			switch (event.type)
 			{
+			case SDL_QUIT:
 				running = false;
+				break;
+
+			case SDL_VIDEORESIZE:
+			{
+				g_start_width = event.resize.w;
+				g_start_height = event.resize.h;
+				screen = SDL_SetVideoMode(g_start_width, g_start_height, 32, SDL_OPENGL | SDL_HWSURFACE | SDL_RESIZABLE);
+				if (screen == NULL)
+				{
+					std::cout << "Failed To Update SDL Window Size\n";
+					running = false;
+					break;
+				}
+
+				glViewport(0, 0, g_start_width, g_start_height);
+
+				World::GetActiveCamera()->SetAspectRatio((GLfloat)g_start_width / (GLfloat)g_start_height);
+
+				break;
+			}
+			default:
+				break;
 			}
 		}
 

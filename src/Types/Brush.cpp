@@ -4,12 +4,138 @@
 #include "Registry/TextureRegistry.h"
 
 #include <cmath>
+#include <limits>
 
 namespace
 {
 	const float kBrushEpsilon = 0.03125f;
 	const float kDebugNormalLength = 12.f;
-}
+
+	// Below This Length An Axis Is Degenerate (Parallel Edges) - Contributes No Separation Info
+	const float kAxisEpsilon = 1e-6f;
+
+	// Returns False Only If No Overlap
+	bool AxisOverlapInterval(const vec3_t &axis, const vec3_t &box_center0, const vec3_t &half_extents, const vec3_t &d, const vec3_t &p0, const vec3_t &p1, const vec3_t &p2, float &t_enter, float &t_exit)
+	{
+		const float axis_len = vec3_t::Length(axis);
+		if (axis_len < kAxisEpsilon)
+		{
+			t_enter = -std::numeric_limits<float>::max();
+			t_exit = std::numeric_limits<float>::max();
+			return true;
+		}
+
+		const vec3_t a = axis * (1.f / axis_len);
+
+		const float tp0 = vec3_t::Dot(p0, a);
+		const float tp1 = vec3_t::Dot(p1, a);
+		const float tp2 = vec3_t::Dot(p2, a);
+		const float tri_min = std::min(tp0, std::min(tp1, tp2));
+		const float tri_max = std::max(tp0, std::max(tp1, tp2));
+
+		const float center_proj = vec3_t::Dot(box_center0, a);
+		const float radius = std::fabs(half_extents.x * a.x) + std::fabs(half_extents.y * a.y) + std::fabs(half_extents.z * a.z);
+
+		const float box_min0 = center_proj - radius;
+		const float box_max0 = center_proj + radius;
+
+		const float v = vec3_t::Dot(d, a); // Rate Of Change Of The Box's Projection Per Unit t
+
+		if (std::fabs(v) < kAxisEpsilon)
+		{
+			// Box Isn't Moving Along This Axis
+			if (box_max0 < tri_min || box_min0 > tri_max)
+			{
+				t_enter = std::numeric_limits<float>::max();
+				t_exit = -std::numeric_limits<float>::max();
+				return false;
+			}
+
+			t_enter = -std::numeric_limits<float>::max();
+			t_exit = std::numeric_limits<float>::max();
+			return true;
+		}
+
+		const float t_a = (tri_min - box_max0) / v;
+		const float t_b = (tri_max - box_min0) / v;
+
+		if (t_a < t_b)
+		{
+			t_enter = t_a;
+			t_exit = t_b;
+		}
+		else
+		{
+			t_enter = t_b;
+			t_exit = t_a;
+		}
+
+		return true;
+	}
+
+	bool SweepBoxTriangle(const vec3_t &box_center0, const vec3_t &half_extents, const vec3_t &d,
+						  const vec3_t &p0, const vec3_t &p1, const vec3_t &p2,
+						  float max_fraction, float &out_fraction, vec3_t &out_normal)
+	{
+		const vec3_t box_axes[3] = {vec3_t(1.f, 0.f, 0.f), vec3_t(0.f, 1.f, 0.f), vec3_t(0.f, 0.f, 1.f)};
+		const vec3_t tri_edges[3] = {p1 - p0, p2 - p1, p0 - p2};
+		const vec3_t tri_normal = vec3_t::Cross(tri_edges[0], tri_edges[1]);
+
+		vec3_t axes[13];
+		int axis_count = 0;
+
+		axes[axis_count++] = box_axes[0];
+		axes[axis_count++] = box_axes[1];
+		axes[axis_count++] = box_axes[2];
+		axes[axis_count++] = tri_normal;
+
+		for (int i = 0; i < 3; ++i)
+			for (int j = 0; j < 3; ++j)
+				axes[axis_count++] = vec3_t::Cross(box_axes[i], tri_edges[j]);
+
+		float global_enter = -std::numeric_limits<float>::max();
+		float global_exit = std::numeric_limits<float>::max();
+		vec3_t hit_axis(0.f);
+
+		for (int i = 0; i < axis_count; ++i)
+		{
+			float t_enter, t_exit;
+			if (!AxisOverlapInterval(axes[i], box_center0, half_extents, d, p0, p1, p2, t_enter, t_exit)) // Found Separating Axis So No Collision
+				return false;
+
+			if (t_enter > global_enter)
+			{
+				global_enter = t_enter;
+				hit_axis = axes[i];
+			}
+
+			if (t_exit < global_exit)
+				global_exit = t_exit;
+
+			if (global_enter > global_exit) // Intervals Don't Overlap Across Axes So No Collision
+				return false;
+		}
+
+		if (global_enter > max_fraction || global_exit < 0.f)
+			return false;
+
+		const float fraction = (global_enter > 0.f) ? global_enter : 0.f;
+		if (fraction > max_fraction)
+			return false;
+
+		const float hit_axis_len = vec3_t::Length(hit_axis);
+		vec3_t normal = (hit_axis_len > kAxisEpsilon) ? hit_axis * (1.f / hit_axis_len) : vec3_t(0.f, 1.f, 0.f);
+
+		// Get Normal Of Collision
+		const vec3_t box_center_at_hit = box_center0 + d * fraction;
+		if (vec3_t::Dot(normal, box_center_at_hit - p0) < 0.f)
+			normal = -normal;
+
+		out_fraction = fraction;
+		out_normal = normal;
+		return true;
+	}
+} // namespace
 
 brush_t::brush_t()
 	: m_vertex_buffer(0), m_draw_count(0)
@@ -185,26 +311,13 @@ bool brush_t::TraceBox(const vec3_t &start, const vec3_t &end, const vec3_t &min
 		return true;
 	}
 
-	vec3_t ray = end - start;
-	float ray_len = vec3_t::Length(ray);
-	if (ray_len < 0.0001f)
+	const vec3_t half_extents = (maxs - mins) * 0.5f;
+	const vec3_t box_center0 = start + (mins + maxs) * 0.5f;
+	const vec3_t displacement = end - start;
+
+	if (vec3_t::Length(displacement) < 0.0001f)
 		return false;
 
-	vec3_t ray_dir = ray * (1.0f / ray_len);
-
-	// Boundint Box Corners
-	const vec3_t corners[8] = {
-		vec3_t(mins.x, mins.y, mins.z),
-		vec3_t(maxs.x, mins.y, mins.z),
-		vec3_t(mins.x, maxs.y, mins.z),
-		vec3_t(maxs.x, maxs.y, mins.z),
-		vec3_t(mins.x, mins.y, maxs.z),
-		vec3_t(maxs.x, mins.y, maxs.z),
-		vec3_t(mins.x, maxs.y, maxs.z),
-		vec3_t(maxs.x, maxs.y, maxs.z)};
-
-	float earliest_impact = 1.0f;
-	vec3_t hit_normal(0.0f);
 	bool hit = false;
 
 	for (size_t f = 0; f < m_faces.size(); ++f)
@@ -219,58 +332,23 @@ bool brush_t::TraceBox(const vec3_t &start, const vec3_t &end, const vec3_t &min
 			const vec3_t &p1 = verts[t];
 			const vec3_t &p2 = verts[t + 1];
 
-			vec3_t edge1 = p1 - p0;
-			vec3_t edge2 = p2 - p0;
-			vec3_t tri_normal = vec3_t::Normalize(vec3_t::Cross(edge1, edge2));
-
-			for (int i = 0; i < 8; ++i)
+			float fraction;
+			vec3_t normal;
+			if (SweepBoxTriangle(box_center0, half_extents, displacement, p0, p1, p2, trace.fraction, fraction, normal))
 			{
-				vec3_t corner_start = start + corners[i];
-				vec3_t s = corner_start - p0;
-
-				vec3_t h = vec3_t::Cross(ray_dir, edge2);
-				float a = vec3_t::Dot(edge1, h);
-
-				if (std::fabs(a) < 1e-6f)
-					continue;
-
-				float f_inv = 1.0f / a;
-				float u = f_inv * vec3_t::Dot(s, h);
-
-				if (u < 0.0f || u > 1.0f)
-					continue;
-
-				vec3_t q = vec3_t::Cross(s, edge1);
-				float v = f_inv * vec3_t::Dot(ray_dir, q);
-
-				if (v < 0.0f || u + v > 1.0f)
-					continue;
-
-				float t_hit = f_inv * vec3_t::Dot(edge2, q);
-				if (t_hit >= 0.0f && t_hit <= ray_len)
+				if (fraction < trace.fraction)
 				{
-					float fraction = t_hit / ray_len;
-					if (fraction < earliest_impact && fraction < trace.fraction)
-					{
-						earliest_impact = fraction;
-						hit_normal = tri_normal;
-						hit = true;
-					}
+					trace.fraction = fraction;
+					trace.normal = normal;
+					trace.end_pos = start + displacement * fraction;
+					trace.in_open = false;
+					hit = true;
 				}
 			}
 		}
 	}
 
-	if (hit)
-	{
-		trace.fraction = earliest_impact;
-		trace.normal = hit_normal;
-		trace.end_pos = start + ray * earliest_impact;
-		trace.in_open = false;
-		return true;
-	}
-
-	return false;
+	return hit;
 }
 
 bool brush_t::OverlapsBounds(const bounds_t &bounds) const
