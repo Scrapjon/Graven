@@ -16,6 +16,7 @@ PFNGLVERTEXATTRIBPOINTERPROC ShaderRegistry::s_glVertexAttribPointer = NULL;
 PFNGLGETUNIFORMLOCATIONPROC ShaderRegistry::s_glGetUniformLocation = NULL;
 PFNGLUNIFORM1IPROC ShaderRegistry::s_glUniform1i = NULL;
 PFNGLUNIFORM1FPROC ShaderRegistry::s_glUniform1f = NULL;
+PFNGLUNIFORM3FPROC ShaderRegistry::s_glUniform3f = NULL;
 PFNGLUNIFORMMATRIX4FVPROC ShaderRegistry::s_glUniformMatrix4fv = NULL;
 PFNGLGENBUFFERSPROC ShaderRegistry::s_glGenBuffers = NULL;
 PFNGLDELETEBUFFERSPROC ShaderRegistry::s_glDeleteBuffers = NULL;

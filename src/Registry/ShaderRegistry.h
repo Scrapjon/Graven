@@ -31,6 +31,7 @@ typedef void(APIENTRY *PFNGLVERTEXATTRIBPOINTERPROC)(GLuint index, GLint size, G
 typedef GLint(APIENTRY *PFNGLGETUNIFORMLOCATIONPROC)(GLuint program, const GLchar *name);
 typedef void(APIENTRY *PFNGLUNIFORM1IPROC)(GLint location, GLint v0);
 typedef void(APIENTRY *PFNGLUNIFORM1FPROC)(GLint location, GLfloat v0);
+typedef void(APIENTRY *PFNGLUNIFORM3FPROC)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
 typedef void(APIENTRY *PFNGLUNIFORMMATRIX4FVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 typedef void(APIENTRY *PFNGLGENBUFFERSPROC)(GLsizei n, GLuint *buffers);
 typedef void(APIENTRY *PFNGLDELETEBUFFERSPROC)(GLsizei n, const GLuint *buffers);
@@ -71,6 +72,7 @@ public:
 		s_glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)SDL_GL_GetProcAddress("glGetUniformLocation");
 		s_glUniform1i = (PFNGLUNIFORM1IPROC)SDL_GL_GetProcAddress("glUniform1i");
 		s_glUniform1f = (PFNGLUNIFORM1FPROC)SDL_GL_GetProcAddress("glUniform1f");
+		s_glUniform3f = (PFNGLUNIFORM3FPROC)SDL_GL_GetProcAddress("glUniform3f");
 		s_glUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)SDL_GL_GetProcAddress("glUniformMatrix4fv");
 		s_glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
 		s_glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)SDL_GL_GetProcAddress("glDeleteBuffers");
@@ -80,7 +82,7 @@ public:
 		if (!s_glCreateShader || !s_glCreateProgram || !s_glUseProgram ||
 			!s_glBindAttribLocation || !s_glEnableVertexAttribArray ||
 			!s_glDisableVertexAttribArray || !s_glVertexAttribPointer ||
-			!s_glGetUniformLocation || !s_glUniform1i || !s_glUniform1f || !s_glUniformMatrix4fv ||
+			!s_glGetUniformLocation || !s_glUniform1i || !s_glUniform1f || !s_glUniform3f || !s_glUniformMatrix4fv ||
 			!s_glGenBuffers || !s_glDeleteBuffers || !s_glBindBuffer || !s_glBufferData)
 		{
 			std::cout << "Shaders Not Supported With GL Configuration\n";
@@ -204,6 +206,20 @@ public:
 			s_glUniform1f(loc, value);
 	}
 
+	void SetVec3(const std::string &name, GLfloat x, GLfloat y, GLfloat z)
+	{
+		GLint loc = s_glGetUniformLocation(m_active_program, name.c_str());
+		if (loc >= 0)
+			s_glUniform3f(loc, x, y, z);
+	}
+
+	void SetVec3(const std::string &name, const vec3_t &vec)
+	{
+		GLint loc = s_glGetUniformLocation(m_active_program, name.c_str());
+		if (loc >= 0)
+			s_glUniform3f(loc, vec.x, vec.y, vec.z);
+	}
+
 private:
 	ShaderRegistry() : m_initialized(false), m_active_program(0) {}
 	~ShaderRegistry() {}
@@ -228,6 +244,7 @@ private:
 	static PFNGLGETUNIFORMLOCATIONPROC s_glGetUniformLocation;
 	static PFNGLUNIFORM1IPROC s_glUniform1i;
 	static PFNGLUNIFORM1FPROC s_glUniform1f;
+	static PFNGLUNIFORM3FPROC s_glUniform3f;
 	static PFNGLUNIFORMMATRIX4FVPROC s_glUniformMatrix4fv;
 	static PFNGLGENBUFFERSPROC s_glGenBuffers;
 	static PFNGLDELETEBUFFERSPROC s_glDeleteBuffers;

@@ -37,12 +37,12 @@ int main(int argc, char *argv[])
 			throw TOO_SMALL;
 		}
 
-		if (argc > 3)
+		if (argc != 3) // Found the asm just ends up doing this anyway if you put > 3
 		{
 			throw TOO_BIG;
 		}
 
-		std::cout << "BAKING SHADERS...\n";
+		std::cout << "Baking shaders...\n";
 
 		std::string dir_path = argv[1];
 		std::string out_path = argv[2];
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 		std::string file_content = MakeFile(head);
 		WriteFile(out_path, file_content);
 
-		std::cout << "SHADERS BAKED SUCCESSFULLY\n";
+		std::cout << "Done!\n";
 	}
 	catch (error_t error)
 	{

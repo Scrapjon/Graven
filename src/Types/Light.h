@@ -1,11 +1,11 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include "Types/Vector.h"
+#include "Object.h"
 
-typedef struct light_t
+class Light : public Object
 {
-    vec3_t color; // values between 0 and 1
+    Light(vec3_t light_color = vec3_t(1.f, 1.f, 1.f));
+    vec3_t light_color;
 };
-
 #endif /* LIGHT_H */

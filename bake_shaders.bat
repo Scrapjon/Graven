@@ -12,10 +12,10 @@ set SHADER_DIR="./ShaderSources"
 set BAKED_OUT="./Baked/ShaderSources.h"
 
 :: Look into cutting down this command bc we don't need all this... - Oliver
-echo [SHADER_BAKER]: COMPILING...
+echo [SHADER_BAKER]: Compiling...
 g++ -O3 -m32 -std=c++98 %SHADER_SOURCES% -static-libstdc++ -Isrc -o %SHADER_OUT%
-echo [SHADER_BAKER]: COMPILAtiON COMPLETE!
+echo [SHADER_BAKER]: Compilation Complete!
 
-echo [SHADER_BAKER]: RUUNING SHADER BAKER
+echo [SHADER_BAKER]: Running ShaderBaker
 %SHADER_OUT% %SHADER_DIR% %BAKED_OUT%
-echo [SHADER_BAKER]: EXECUTION COMPLETE!
+echo [SHADER_BAKER]: Shaders baked successfully!

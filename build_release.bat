@@ -20,8 +20,8 @@ for /R src %%f in (*.cpp) do (
 	set "SOURCES=!SOURCES! "%%f""
 )
 
-echo [GRAVEN]: COMPILING...
+echo [GRAVEN]: Compiling...
 g++ -O3 -m32 -std=c++98 %SOURCES% -static-libstdc++ -IBaked -Isrc -Ivendor/SDL/include -Lvendor/SDL/lib -lopengl32 -lSDLmain -lSDL -o %OUT%
-echo [GRAVEN] COMPILATION COMPLETE!
+echo [GRAVEN] Compilation complete!
 
 endlocal
