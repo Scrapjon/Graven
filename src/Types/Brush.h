@@ -16,6 +16,7 @@ typedef struct
 	std::string texture_name;
 	GLsizei offset;
 	GLsizei count;
+	bool use_wavy; // True If texture_name Has '&' (Liquids/Teles)
 } brush_batch_t;
 
 typedef struct

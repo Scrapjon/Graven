@@ -1,6 +1,7 @@
 #include "Types/Vector.h"
 #include "Plane.h"
 #include "Types/Vertex.h"
+#include "Types/Bounds.h"
 
 #include <cmath>
 #include <cstdio>
@@ -94,6 +95,11 @@ namespace
 							   ? path.substr(0, dot)
 							   : path;
 		return base + new_ext;
+	}
+
+	bool IsWorldGeometryClassname(const std::string &classname)
+	{
+		return classname == "worldspawn" || classname == "func_group" || classname == "func_detail";
 	}
 
 	// Convert Trenchbroom Z Up To Y Up
@@ -214,11 +220,17 @@ namespace
 			{
 				if (depth == 2)
 				{
-					out_brushes.push_back(current_brush);
 					current_entity.brushes.push_back(current_brush);
 				}
 				else if (depth == 1)
 				{
+					// Ensure It Has A Geo Name To Add To Brushes
+					if (IsWorldGeometryClassname(current_entity.classname))
+					{
+						for (size_t b = 0; b < current_entity.brushes.size(); ++b)
+							out_brushes.push_back(current_entity.brushes[b]);
+					}
+
 					out_entities.push_back(current_entity);
 				}
 				--depth;
@@ -462,10 +474,16 @@ namespace
 		}
 
 		std::vector<const map_entity_t *> point_entities;
+		std::vector<const map_entity_t *> volume_entities;
 		for (size_t i = 0; i < entities.size(); ++i)
 		{
+			if (IsWorldGeometryClassname(entities[i].classname))
+				continue;
+
 			if (entities[i].brushes.empty())
 				point_entities.push_back(&entities[i]);
+			else
+				volume_entities.push_back(&entities[i]);
 		}
 
 		WriteRaw(out, (int)point_entities.size());
@@ -495,6 +513,57 @@ namespace
 					WriteString(out, it->second);
 				}
 			}
+		}
+
+		// Trigger Entities Like trigger_teleport
+		WriteRaw(out, (int)volume_entities.size());
+
+		for (size_t i = 0; i < volume_entities.size(); ++i)
+		{
+			const map_entity_t &e = *volume_entities[i];
+			WriteString(out, e.classname);
+			WriteRaw(out, CountNonClassnameKeys(e));
+
+			for (std::map<std::string, std::string>::const_iterator it = e.keyvalues.begin(); it != e.keyvalues.end(); ++it)
+			{
+				if (it->first == "classname")
+					continue;
+
+				WriteString(out, it->first);
+				WriteString(out, it->second);
+			}
+
+			bounds_t bounds;
+			bool any_point = false;
+
+			for (size_t b = 0; b < e.brushes.size(); ++b)
+			{
+				const compiled_brush_t cb = CompileBrush(e.brushes[b]);
+
+				for (size_t f = 0; f < cb.faces.size(); ++f)
+				{
+					for (size_t v = 0; v < cb.faces[f].verts.size(); ++v)
+					{
+						const vec3_t point = (vec3_t)cb.faces[f].verts[v];
+
+						if (!any_point)
+						{
+							bounds = bounds_t(point, point);
+							any_point = true;
+						}
+						else
+						{
+							bounds.EncapsulatePoint(point);
+						}
+					}
+				}
+			}
+
+			if (!any_point)
+				bounds = bounds_t(vec3_t(0.f), vec3_t(0.f));
+
+			WriteRaw(out, bounds.min);
+			WriteRaw(out, bounds.max);
 		}
 
 		return true;

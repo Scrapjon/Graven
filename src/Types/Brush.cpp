@@ -2,6 +2,7 @@
 
 #include "Registry/ShaderRegistry.h"
 #include "Registry/TextureRegistry.h"
+#include "World.h"
 
 #include <cmath>
 #include <limits>
@@ -184,6 +185,9 @@ void brush_t::BuildRenderData()
 		batch.texture_name = face.texture;
 		batch.offset = current_offset;
 		batch.count = (GLsizei)face.verts.size();
+
+		batch.use_wavy = !face.texture.empty() && face.texture.find("&") != std::string::npos;
+
 		m_batches.push_back(batch);
 
 		all_verts.insert(all_verts.end(), face.verts.begin(), face.verts.end());
@@ -210,12 +214,27 @@ void brush_t::Draw()
 
 	shaders.BindVertexBuffer((GLuint)m_vertex_buffer);
 
+	bool wavy_active = false;
+
 	for (size_t i = 0; i < m_batches.size(); ++i)
 	{
 		const brush_batch_t &batch = m_batches[i];
 
 		if (batch.texture_name == "__TB_empty")
 			continue;
+
+		if (batch.use_wavy != wavy_active)
+		{
+			wavy_active = batch.use_wavy;
+
+			shaders.Use(wavy_active ? "wavy" : "default");
+
+			if (wavy_active)
+			{
+				shaders.SetMatrix("u_mvp", World::GetActiveCamera()->GetViewProjectionMatrix());
+				shaders.SetFloat("u_time", (float)World::GetTimer() / 60.f);
+			}
+		}
 
 		GLuint texture = textures.GetTexture(batch.texture_name);
 		if (!texture)
@@ -224,6 +243,10 @@ void brush_t::Draw()
 		shaders.SetTexture("u_texture", texture);
 		glDrawArrays(GL_TRIANGLES, batch.offset, batch.count);
 	}
+
+	// Restore The Default Shader
+	if (wavy_active)
+		shaders.Use("default");
 
 	shaders.UnbindVertexBuffer();
 }

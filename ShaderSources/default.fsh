@@ -9,7 +9,7 @@ uniform sampler2D u_texture;
 vec4 getAmbientLighting() {
 	vec3 lightColor = vec3(1., 1., 1.); /*temp*/
 	vec3 objectColor = lightColor; /*temp*/
-	float ambientStrength = 0.1;
+	float ambientStrength = 1.;
 
    	vec3 ambient = ambientStrength * lightColor;
    	vec3 result = ambient * objectColor;

@@ -1,4 +1,5 @@
 #include "World.h"
+#include "Entities/PhysicsEntity.h"
 #include <algorithm>
 #include <cstring>
 #include <fstream>
@@ -120,6 +121,8 @@ void World::Tick(float delta_time)
 			obj->Tick(delta_time);
 	}
 
+	CheckTriggers();
+
 	if (!world.m_pending_destroys.empty())
 		world.Cleanup();
 }
@@ -155,6 +158,59 @@ void World::Draw()
 
 	if (!world.m_pending_destroys.empty())
 		world.Cleanup();
+}
+
+void World::CheckTriggers()
+{
+	World &world = Get();
+
+	if (world.m_triggers.empty())
+		return;
+
+	for (size_t t = 0; t < world.m_triggers.size(); ++t)
+	{
+		const trigger_volume_t &trigger = world.m_triggers[t];
+
+		for (size_t i = 0; i < world.m_objects.size(); ++i)
+		{
+			Object *obj = world.m_objects[i];
+			if (!obj)
+				continue;
+
+			const bounds_t obj_bounds = obj->GetBounds();
+
+			// Object And Volume Are AABB
+			const bool overlaps =
+				obj_bounds.max.x >= trigger.bounds.min.x && obj_bounds.min.x <= trigger.bounds.max.x &&
+				obj_bounds.max.y >= trigger.bounds.min.y && obj_bounds.min.y <= trigger.bounds.max.y &&
+				obj_bounds.max.z >= trigger.bounds.min.z && obj_bounds.min.z <= trigger.bounds.max.z;
+
+			if (!overlaps)
+				continue;
+
+			switch (trigger.type)
+			{
+			case TT_TELE:
+			{
+
+				std::map<std::string, vec3_t>::const_iterator dest = world.m_teleport_destinations.find(trigger.target);
+				if (dest == world.m_teleport_destinations.end())
+					continue;
+
+				obj->SetPos(dest->second);
+			}
+
+			case TT_CMD:
+			{
+				std::cout << "NOT IMPLEMENTED\n";
+				break;
+			}
+
+			default:
+				break;
+			}
+		}
+	}
 }
 
 trace_t World::Trace(const vec3_t &start, const vec3_t &end, const vec3_t &mins, const vec3_t &maxs)
@@ -201,6 +257,8 @@ bool World::LoadCompiledMap(const std::string &filepath)
 		delete m_brushes[i];
 	m_brushes.clear();
 	m_player_start = vec3_t(0.f);
+	m_triggers.clear();
+	m_teleport_destinations.clear();
 
 	int brush_count = 0;
 	ReadRaw(file, brush_count);
@@ -246,6 +304,7 @@ bool World::LoadCompiledMap(const std::string &filepath)
 
 		vec3_t origin(0.f);
 		bool has_origin = false;
+		std::string targetname;
 
 		for (int k = 0; k < kv_count; ++k)
 		{
@@ -259,13 +318,62 @@ bool World::LoadCompiledMap(const std::string &filepath)
 				iss >> origin.x >> origin.y >> origin.z;
 				has_origin = true;
 			}
+			else if (key == "targetname")
+			{
+				targetname = value;
+			}
 		}
 
 		if (classname == "player_start" && has_origin)
-			m_player_start = origin + vec3_t(0.f, 10.f, 0.f);
+			m_player_start = origin + vec3_t(0.f, 1.f, 0.f);
+		else if (classname == "info_teleport_destination" && has_origin && !targetname.empty())
+			m_teleport_destinations[targetname] = origin + vec3_t(0.f, 33.f, 0.f);
 	}
 
-	std::cout << "LoadMap: Loaded '" << filepath.c_str() << "' (" << m_brushes.size() << " Brushes)\n";
+	// Volume/Trigger Entities
+	int volume_entity_count = 0;
+	ReadRaw(file, volume_entity_count);
+
+	for (int e = 0; e < volume_entity_count; ++e)
+	{
+		std::string classname;
+		ReadString(file, classname);
+
+		int kv_count = 0;
+		ReadRaw(file, kv_count);
+
+		std::string target;
+
+		for (int k = 0; k < kv_count; ++k)
+		{
+			std::string key, value;
+			ReadString(file, key);
+			ReadString(file, value);
+
+			if (key == "target")
+				target = value;
+		}
+
+		vec3_t bounds_min(0.f), bounds_max(0.f);
+		ReadRaw(file, bounds_min);
+		ReadRaw(file, bounds_max);
+
+		if (!target.empty())
+		{
+			trigger_volume_t trigger;
+
+			if (classname == "trigger_teleport")
+				trigger.type = TT_TELE;
+			else if (classname == "trigger_command")
+				trigger.type = TT_CMD;
+
+			trigger.bounds = bounds_t(bounds_min, bounds_max);
+			trigger.target = target;
+			m_triggers.push_back(trigger);
+		}
+	}
+
+	std::cout << "LoadMap: Loaded '" << filepath.c_str() << "' (" << m_brushes.size() << " Brushes, " << m_triggers.size() << " Triggers)\n";
 
 	return true;
 }

@@ -3,8 +3,11 @@
 
 #include "Camera.h"
 #include "Object.h"
+#include "Types/Bounds.h"
 #include "Types/Brush.h"
 #include "Types/Trace.h"
+#include "Types/TriggerVolume.h"
+#include <map>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -51,6 +54,10 @@ private:
 	std::vector<Object *> m_pending_destroys;
 	std::vector<brush_t *> m_brushes;
 
+	std::vector<trigger_volume_t> m_triggers;
+	// info_teleport_destination Positions, Keyed By "targetname"
+	std::map<std::string, vec3_t> m_teleport_destinations;
+
 	static World &Get()
 	{
 		static World instance;
@@ -59,6 +66,9 @@ private:
 
 	void Cleanup();
 	bool LoadCompiledMap(const std::string &filepath);
+
+	// Teleports Object Overlapping A trigger_teleport Volume To info_teleport_destination
+	static void CheckTriggers();
 
 	World();
 	~World();

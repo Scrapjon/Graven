@@ -35,7 +35,6 @@ bool TextureRegistry::Initialize()
 
 	LoadTexture("test", "./test.bmp");
 
-	// Transparent
 	RTEX("makkon/makkon_building_textures/win_teal1_1");
 	RTEX("makkon/makkon_building_textures/woodc2_cbare01");
 	RTEX("makkon/makkon_building_textures/woodc2_wbare01");
@@ -54,7 +53,11 @@ bool TextureRegistry::Initialize()
 	RTEX("makkon/makkon_stone_textures/stn_t07_tan1");
 	RTEX("makkon/makkon_stone_textures/stn_t11_tan1");
 	RTEX("makkon/makkon_stone_textures/tan1");
+
+	RTEX("makkon/makkon_liquid_textures/&tele128_blu1");
+
 	// !! TODO: Have Animated Sprites Using World Timer !!
+	// Transparent
 
 	return true;
 }
