@@ -93,6 +93,7 @@ public:
 
 		LoadShader("default", Shaders::Default::vert, Shaders::Default::frag);
 		LoadShader("wavy", Shaders::Wavy::vert, Shaders::Wavy::frag);
+		LoadShader("light", Shaders::Light::vert, Shaders::Light::frag);
 		return true;
 	}
 
