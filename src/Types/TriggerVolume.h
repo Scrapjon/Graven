@@ -12,7 +12,9 @@ typedef enum
 
 typedef struct
 {
-	trigger_type_t type;
+	trigger_type_t type : 7;
+	bool triggered : 1;
+
 	bounds_t bounds;
 	std::string target;
 } trigger_volume_t;

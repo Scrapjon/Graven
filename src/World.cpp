@@ -169,7 +169,7 @@ void World::CheckTriggers()
 
 	for (size_t t = 0; t < world.m_triggers.size(); ++t)
 	{
-		const trigger_volume_t &trigger = world.m_triggers[t];
+		trigger_volume_t &trigger = world.m_triggers[t];
 
 		for (size_t i = 0; i < world.m_objects.size(); ++i)
 		{
@@ -186,6 +186,14 @@ void World::CheckTriggers()
 				obj_bounds.max.z >= trigger.bounds.min.z && obj_bounds.min.z <= trigger.bounds.max.z;
 
 			if (!overlaps)
+			{
+				if (trigger.triggered)
+					trigger.triggered = false;
+
+				continue;
+			}
+
+			if (trigger.triggered)
 				continue;
 
 			switch (trigger.type)
@@ -209,6 +217,8 @@ void World::CheckTriggers()
 			default:
 				break;
 			}
+
+			trigger.triggered = true;
 		}
 	}
 }
