@@ -12,4 +12,4 @@ set SHADER_DIR="./ShaderSources"
 set BAKED_OUT="./src/Baked/ShaderSources.h"
 
 :: Look into cutting down this command bc we don't need all this... - Oliver
-g++ -O3 -m32 -std=c++98 %SHADER_SOURCES% -static-libstdc++ -Isrc -Ivendor/SDL/include -Lvendor/SDL/lib -lmingw32 -lopengl32 -lSDLmain -lSDL -o %SHADER_OUT% && %SHADER_OUT% %SHADER_DIR% %BAKED_OUT%
+g++ -O3 -m32 -std=c++98 %SHADER_SOURCES% -static-libstdc++ -Isrc -o %SHADER_OUT% && %SHADER_OUT% %SHADER_DIR% %BAKED_OUT%

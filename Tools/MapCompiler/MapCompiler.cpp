@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+#define BASE_TEX_SIZE 512.f
+
 namespace
 {
 	const float kClipEpsilon = 0.001f;
@@ -294,8 +296,8 @@ namespace
 
 		if (f.is_valve220)
 		{
-			u = ((vec3_t::Dot(point_zup, f.u_axis) / sx) + f.xoff) / 256.f;
-			v = ((vec3_t::Dot(point_zup, f.v_axis) / sy) + f.yoff) / -256.f;
+			u = ((vec3_t::Dot(point_zup, f.u_axis) / sx) + f.xoff) / BASE_TEX_SIZE;
+			v = ((vec3_t::Dot(point_zup, f.v_axis) / sy) + f.yoff) / -BASE_TEX_SIZE;
 		}
 		else
 		{
@@ -309,8 +311,8 @@ namespace
 			const vec3_t rxv = (xv * c) - (yv * s);
 			const vec3_t ryv = (xv * s) + (yv * c);
 
-			u = ((vec3_t::Dot(point_zup, rxv) / sx) + f.xoff) / 256.f;
-			v = ((vec3_t::Dot(point_zup, ryv) / sy) - f.yoff) / -256.f;
+			u = ((vec3_t::Dot(point_zup, rxv) / sx) + f.xoff) / BASE_TEX_SIZE;
+			v = ((vec3_t::Dot(point_zup, ryv) / sy) - f.yoff) / -BASE_TEX_SIZE;
 		}
 	}
 

@@ -88,6 +88,9 @@ void brush_t::Draw()
 	{
 		const brush_batch_t &batch = m_batches[i];
 
+		if (batch.texture_name == "__TB_empty")
+			continue;
+
 		GLuint texture = textures.GetTexture(batch.texture_name);
 		if (!texture)
 			texture = textures.GetTexture("checker");

@@ -139,17 +139,19 @@ std::string FindAndReplace(std::string str,
 
 std::string GetFileContents(const std::string &path)
 {
-    if (!FileExists(path))
+    std::ifstream file(path.c_str(), std::ios::binary);
+    if (!file.is_open())
         return "";
-    std::ifstream file;
-    file.open(path.c_str());
-    file.seekg(0, file.end);
-    unsigned int length = file.tellg();
-    file.seekg(0, file.beg);
-    char buf[length];
-    file.read(buf, length);
-    std::string file_contents = std::string(buf);
-    return file_contents;
+
+    file.seekg(0, std::ios::end);
+    std::streamsize length = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    std::string content;
+    content.resize(length);
+    if (file.read(&content[0], length))
+        return content;
+    return "";
 }
 
 std::string GetNameFromFilename(const std::string &filename)

@@ -12,6 +12,6 @@ for /R Tools/MapCompiler %%f in (*.cpp) do (
 )
 
 echo Compiling...
-g++ -DDEBUG -g -m32 -std=c++98 %SOURCES% -static-libstdc++ -Isrc -lmingw32 -o %OUT%
+g++ -O3 -DDEBUG -g -m32 -std=c++98 %SOURCES% -static-libstdc++ -Isrc -o %OUT%
 
 endlocal
