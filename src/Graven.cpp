@@ -3,6 +3,7 @@
 #include "Registry/ShaderRegistry.h"
 #include "Registry/TextureRegistry.h"
 #include "Camera.h"
+#include "World.h"
 
 #include "Types/GUID.h"
 #include "Types/Vector.h"
@@ -77,14 +78,19 @@ int Graven::Run()
 	GLuint checker_texture = TextureRegistry::GetInstance().GetTexture("test");
 
 	Camera camera;
-	camera.SetPosition(1.f, 1.f, 3.f);
-	camera.AddYawPitch(-20.f, -10.f);
-	camera.SetPerspective(45.f, (GLfloat)g_start_width / (GLfloat)g_start_height, 0.1f, 100.f);
+	World::SetActiveCamera(&camera);
+
+	World::GetActiveCamera()->SetPosition(1.f, -1.f, 3.f);
+	World::GetActiveCamera()->AddYawPitch(-20.f, 10.f);
+	World::GetActiveCamera()->SetPerspective(45.f, (GLfloat)g_start_width / (GLfloat)g_start_height, 0.1f, 100.f);
 
 	SDL_Event event;
 
 	mesh_t mesh;
 	mesh.LoadShader("default");
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	while (running)
 	{
@@ -98,11 +104,13 @@ int Graven::Run()
 			}
 		}
 
+		World::Tick(1.f / 60.f);
+
 		glClearColor(.1f, .1f, .1f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shaders.Use("default");
-		shaders.SetMatrix("u_mvp", camera.GetViewProjectionMatrix());
+		shaders.SetMatrix("u_mvp", World::GetActiveCamera()->GetViewProjectionMatrix());
 		shaders.SetTexture("u_texture", checker_texture);
 
 		// shaders.BindVertexBuffer(triangle_vbo);

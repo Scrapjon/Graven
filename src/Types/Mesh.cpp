@@ -79,8 +79,12 @@ bool mesh_t::LoadOBJ(const std::string &path)
 		}
 		else if (prefix == "f")
 		{
+			std::vector<unsigned int> face_pIdx;
+			std::vector<unsigned int> face_tIdx;
+			std::vector<unsigned int> face_nIdx;
 			std::string vertex_str;
-			for (int i = 0; i < 3; ++i)
+
+			for (int i = 0; i < 4; ++i)
 			{
 				if (!(iss >> vertex_str))
 					break;
@@ -91,12 +95,10 @@ bool mesh_t::LoadOBJ(const std::string &path)
 
 				if (firstSlash == std::string::npos)
 				{
-					// Format: v
 					pIdx = std::atoi(vertex_str.c_str());
 				}
 				else if (secondSlash == std::string::npos)
 				{
-					// Format: v/vt
 					pIdx = std::atoi(vertex_str.substr(0, firstSlash).c_str());
 					tIdx = std::atoi(vertex_str.substr(firstSlash + 1).c_str());
 				}
@@ -104,13 +106,11 @@ bool mesh_t::LoadOBJ(const std::string &path)
 				{
 					if (firstSlash + 1 == secondSlash)
 					{
-						// Format: v//vn
 						pIdx = std::atoi(vertex_str.substr(0, firstSlash).c_str());
 						nIdx = std::atoi(vertex_str.substr(secondSlash + 1).c_str());
 					}
 					else
 					{
-						// Format: v/vt/vn
 						pIdx = std::atoi(vertex_str.substr(0, firstSlash).c_str());
 						tIdx = std::atoi(vertex_str.substr(firstSlash + 1, secondSlash - firstSlash - 1).c_str());
 						nIdx = std::atoi(vertex_str.substr(secondSlash + 1).c_str());
@@ -118,11 +118,28 @@ bool mesh_t::LoadOBJ(const std::string &path)
 				}
 
 				if (pIdx > 0)
-					vertex_indices.push_back(pIdx - 1);
+					face_pIdx.push_back(pIdx - 1);
 				if (tIdx > 0)
-					uv_indices.push_back(tIdx - 1);
+					face_tIdx.push_back(tIdx - 1);
 				if (nIdx > 0)
-					normal_indices.push_back(nIdx - 1);
+					face_nIdx.push_back(nIdx - 1);
+			}
+
+			int num_tris = (face_pIdx.size() == 4) ? 2 : (face_pIdx.size() == 3 ? 1 : 0);
+			int tri_edges[2][3] = {{0, 1, 2}, {0, 2, 3}};
+
+			for (int t = 0; t < num_tris; ++t)
+			{
+				for (int j = 0; j < 3; ++j)
+				{
+					int idx = tri_edges[t][j];
+					if (idx < face_pIdx.size())
+						vertex_indices.push_back(face_pIdx[idx]);
+					if (idx < face_tIdx.size())
+						uv_indices.push_back(face_tIdx[idx]);
+					if (idx < face_nIdx.size())
+						normal_indices.push_back(face_nIdx[idx]);
+				}
 			}
 		}
 	}
