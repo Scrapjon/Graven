@@ -1,6 +1,15 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: Bake shaders
+call ./bake_shaders.bat
+
+
+::::::::::::::::::
+:: Compile Game ::
+::::::::::::::::::
+
+
 :: Config
 set OUT=Graven.exe
 
