@@ -1,6 +1,8 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include <cmath>
+
 typedef struct vec3_t
 {
 	float x, y, z;
@@ -117,5 +119,99 @@ typedef struct vec3_t
 	}
 
 } vec3_t;
+
+typedef struct vec2_t
+{
+	float x, y;
+
+	vec2_t() : x(0.f), y(0.f) {}
+
+	vec2_t(float flat) : x(flat), y(flat) {}
+
+	vec2_t(float x_, float y_) : x(x_), y(y_) {}
+
+	// Operators
+	vec2_t operator+(const vec2_t &other) const
+	{
+		return vec2_t(x + other.x, y + other.y);
+	}
+	vec2_t &operator+=(const vec2_t &rhs)
+	{
+		x += rhs.x;
+		y += rhs.y;
+		return *this;
+	}
+	vec2_t operator-(const vec2_t &other) const
+	{
+		return vec2_t(x - other.x, y - other.y);
+	}
+	vec2_t &operator-=(const vec2_t &rhs)
+	{
+		x -= rhs.x;
+		y -= rhs.y;
+		return *this;
+	}
+	vec2_t operator*(const vec2_t &other) const
+	{
+		return vec2_t(x * other.x, y * other.y);
+	}
+	vec2_t &operator*=(const vec2_t &rhs)
+	{
+		x *= rhs.x;
+		y *= rhs.y;
+		return *this;
+	}
+	vec2_t operator/(const vec2_t &other) const
+	{
+		return vec2_t(x / other.x, y / other.y);
+	}
+	vec2_t &operator/=(const vec2_t &rhs)
+	{
+		x /= rhs.x;
+		y /= rhs.y;
+		return *this;
+	}
+
+	vec2_t operator-() const
+	{
+		return vec2_t(-x, -y);
+	}
+
+	float operator|(const vec2_t &other) const
+	{
+		return Dot(*this, other);
+	}
+
+	// Math
+	static float Dot(const vec2_t &lhs, const vec2_t &rhs)
+	{
+		return (lhs.x * rhs.x) + (lhs.y * rhs.y);
+	}
+
+	static float Length(const vec2_t &a)
+	{
+		return std::sqrt(a | a);
+	}
+
+	static vec2_t Normalize(const vec2_t &a)
+	{
+		const float len = vec2_t::Length(a);
+		return (len > .0001f) ? a * (1.f / len) : a;
+	}
+
+	// Global Constants
+	static vec2_t X()
+	{
+		static const vec2_t x = vec2_t(1.f, 0.f);
+		return x;
+	}
+
+	static vec2_t Y()
+	{
+		static const vec2_t y = vec2_t(0.f, 1.f);
+		return y;
+	}
+
+} vec2_t;
 
 #endif /* VECTOR_H */

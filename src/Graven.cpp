@@ -6,6 +6,7 @@
 
 #include "Types/GUID.h"
 #include "Types/Vector.h"
+#include "Types/Mesh.h"
 
 #include <iostream>
 
@@ -76,10 +77,14 @@ int Graven::Run()
 	GLuint checker_texture = TextureRegistry::GetInstance().GetTexture("test");
 
 	Camera camera;
-	camera.SetPosition(0.f, 0.f, 3.f);
+	camera.SetPosition(1.f, 1.f, 3.f);
+	camera.AddYawPitch(-20.f, -10.f);
 	camera.SetPerspective(45.f, (GLfloat)g_start_width / (GLfloat)g_start_height, 0.1f, 100.f);
 
 	SDL_Event event;
+
+	mesh_t mesh;
+	mesh.LoadShader("default");
 
 	while (running)
 	{
@@ -100,9 +105,11 @@ int Graven::Run()
 		shaders.SetMatrix("u_mvp", camera.GetViewProjectionMatrix());
 		shaders.SetTexture("u_texture", checker_texture);
 
-		shaders.BindVertexBuffer(triangle_vbo);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		shaders.UnbindVertexBuffer();
+		// shaders.BindVertexBuffer(triangle_vbo);
+		// glDrawArrays(GL_TRIANGLES, 0, 6);
+		// shaders.UnbindVertexBuffer();
+
+		mesh.Draw();
 
 		shaders.Unuse();
 
