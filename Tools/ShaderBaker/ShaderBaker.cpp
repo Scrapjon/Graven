@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 			std::string file_contents = GetFileContents(current_path);
 			std::string name = GetNameFromFilename(shader_paths[i]);
 			file_contents = FindAndReplace(file_contents, "\r", "");
-			file_contents = FindAndReplace(file_contents, "\n", "");
+			file_contents = FindAndReplace(file_contents, "\n", "\\n");
 			file_contents = FindAndReplace(file_contents, "	", "");
 
 			switch (GetFileTypeFromFilename(shader_paths[i]))
