@@ -1,3 +1,7 @@
+#ifndef DEBUG
+#define NDEBUG // Disable asserts in release
+#endif
+
 #include <iostream>
 #include <windows.h>
 
@@ -5,7 +9,6 @@
 
 int APIENTRY WinMain(HINSTANCE /* hinst */, HINSTANCE /* hinstprev */, PSTR /* cmd_line */, int /* cmd_show */)
 {
-
 	std::cout << "VIDEO GAME!\n";
 
 	Graven &graven = Graven::Get();

@@ -1,12 +1,15 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
+#include <cassert>
 #include "Object.h"
 #include "Types/Mesh.h"
 
 typedef enum
 {
-
+    ET_ENTITY = 0, // Should never be this
+    ET_PLAYER,
+    ET_AI
 } entity_type_t;
 
 typedef enum
@@ -32,11 +35,14 @@ class Entity : Object
 protected:
     unsigned short _health;
     unsigned short _flags;
-    entity_type_t _entity_type;
+    const entity_type_t _entity_type;
     mesh_t _mesh;
 
-    Entity() {}
-    ~Entity() {}
+    Entity(entity_type_t entity_type) : _entity_type(entity_type)
+    {
+        assert(entity_type != ET_ENTITY && "Entity initialized as Entity Type (ET_ENTITY)");
+    }
+    virtual ~Entity() {}
 
 public:
     virtual void BeginPlay() = 0;
