@@ -2,7 +2,7 @@ varying vec2 v_texcoord;
 uniform sampler2D u_texture;
 
 
-uniform vec3 lightColor;
+uniform vec3 ambientColor;
 uniform float ambientStrength;
 
 /*
@@ -10,11 +10,10 @@ uniform float ambientStrength;
 * - Oliver
 */
 vec4 getAmbientLighting() {
-	vec3 lightColor = vec3(1.0, 1.0, 1.0);
-	vec3 objectColor = lightColor; /*temp*/
-	float ambientStrength = 1.0;
+	vec3 objectColor = ambientColor; // temp
 
-   	vec3 ambient = ambientStrength * lightColor;
+   	vec3 ambient = ambientStrength * ambientColor;
+	
    	vec3 result = ambient * objectColor;
 	return vec4(result, 1.0);
 }

@@ -48,6 +48,8 @@ private:
 
 	Camera *m_camera;
 	float m_gravity;
+	float m_ambient_strength;
+	vec3_t m_ambient_color;
 	vec3_t m_player_start;
 
 	std::vector<Object *> m_objects;

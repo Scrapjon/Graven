@@ -1,4 +1,5 @@
 #include "World.h"
+#include "Registry/ShaderRegistry.h"
 #include "Entities/PhysicsEntity.h"
 #include <algorithm>
 #include <cstring>
@@ -34,7 +35,7 @@ namespace
 	}
 } // namespace
 
-World::World() : m_camera(0), m_gravity(-980.f), m_player_start(0.f)
+World::World() : m_camera(0), m_gravity(-980.f), m_player_start(0.f), m_ambient_strength(0.25f), m_ambient_color(1.0f, 1.0f, 1.0f)
 {
 	m_objects.reserve(MAX_WORLD_OBJECTS);
 	m_pending_destroys.reserve(MAX_WORLD_OBJECTS / 8);
@@ -102,6 +103,11 @@ void World::BeginPlay()
 {
 	s_has_started = true;
 	World &world = Get();
+
+	ShaderRegistry &shaders = ShaderRegistry::GetInstance();
+	shaders.SetVec3("ambientColor", world.m_ambient_color);
+	shaders.SetFloat("ambientStrength", world.m_ambient_strength);
+
 	for (size_t i = 0; i < world.m_objects.size(); ++i)
 	{
 		if (world.m_objects[i])
@@ -382,6 +388,8 @@ bool World::LoadCompiledMap(const std::string &filepath)
 			m_triggers.push_back(trigger);
 		}
 	}
+
+	// TODO: Add in logic to grab ambient light values from map file.
 
 	std::cout << "LoadMap: Loaded '" << filepath.c_str() << "' (" << m_brushes.size() << " Brushes, " << m_triggers.size() << " Triggers)\n";
 
