@@ -2,44 +2,52 @@
 #define WORLD_H
 
 #include "Camera.h"
-
-#define MAX_WORLD_OBJECTS 256
+#include "Object.h"
+#include <vector>
 
 class World
 {
 public:
-	static Camera *GetActiveCamera()
-	{
-		return GetActiveWorld().m_camera;
-	}
+	static Camera *GetActiveCamera() { return Get().m_camera; }
+	static void SetActiveCamera(Camera *cam) { Get().m_camera = cam; }
 
-	static void SetActiveCamera(Camera *cam)
-	{
-		GetActiveWorld().m_camera = cam;
-	}
+	static void BeginPlay();
+	static void Tick(float delta_time);
+	static void EndPlay();
+	static void Draw();
 
-	static void BeginPlay() {}
-	static void Tick(float /* delta_time */)
-	{
-		s_timer++;
-	}
-	static void EndPlay() {}
+	static unsigned int GetTimer() { return s_timer; }
+
+	static bool Spawn(Object *obj);
+	static void Destroy(Object *obj);
 
 private:
-	static unsigned int s_timer;
+	struct ObjectEntry
+	{
+		Object *obj;
+		bool pending_destroy;
+	};
 
-	static World &GetActiveWorld()
+	static unsigned int s_timer;
+	static bool s_has_started;
+
+	Camera *m_camera;
+	float m_gravity;
+	std::vector<ObjectEntry> m_objects;
+
+	static World &Get()
 	{
 		static World instance;
 		return instance;
 	}
 
-	World() : m_camera(0), m_gravity(-9.8f) {}
-	~World() {}
+	void Cleanup();
 
-	Camera *m_camera;
+	World();
+	~World();
 
-	float m_gravity;
+	World(const World &);
+	World &operator=(const World &);
 };
 
-#endif /* WORLD_H */
+#endif

@@ -3,10 +3,8 @@
 
 void AIEntity::Tick(float delta_time)
 {
-	/* Uncomment when GetTimer is implemented
 	if ((World::GetTimer() + m_offset) % 2)
 		Think(delta_time);
-	*/
 }
 
 bool AIEntity::MoveStep(const vec3_t &move)

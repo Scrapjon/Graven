@@ -9,7 +9,6 @@ class Object
 {
 	guid_t m_guid;
 	bool m_tick_enabled;
-	bool m_pending_kill;
 
 public:
 	const char *name;
@@ -35,7 +34,6 @@ public:
 	virtual void Draw() = 0;
 
 	void Destroy();
-	bool IsValid() const;
 
 protected:
 	vec3_t _pos;
