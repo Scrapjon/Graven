@@ -4,7 +4,7 @@
 #include "Entities/Entity.h"
 #include "Types/Faction.h"
 
-class PhysicsEntity : Entity
+class PhysicsEntity : public Entity
 {
 protected:
     vec3_t _vel;

@@ -9,7 +9,13 @@ typedef enum
 {
     ET_ENTITY = 0, // Should never be this
     ET_PLAYER,
-    ET_AI
+    ET_AI,
+    ET_ENEMY_BIRD,
+    ET_ENEMY_DECAYED,
+    ET_ENEMY_PALADIN,
+    ET_ENEMY_WIZARD,
+    ET_ENEMY_DARRELL
+
 } entity_type_t;
 
 typedef enum
@@ -30,15 +36,19 @@ typedef enum
     DT_EXPLOSIVE
 } damage_type_t;
 
-class Entity : Object
+class Entity : public Object
 {
+
+private:
+    const entity_type_t m_entity_type;
+
 protected:
     unsigned short _health;
     unsigned short _flags;
-    const entity_type_t _entity_type;
+
     mesh_t _mesh;
 
-    Entity(entity_type_t entity_type) : _entity_type(entity_type)
+    Entity(entity_type_t entity_type) : m_entity_type(entity_type)
     {
         assert(entity_type != ET_ENTITY && "Entity initialized as Entity Type (ET_ENTITY)");
     }
@@ -56,6 +66,9 @@ public:
 
     bool AddFlag(flag_entity_t flag);
     bool RemoveFlag(flag_entity_t flag);
+
+    entity_type_t GetEntityType() const { return m_entity_type; }                                 // Returns entity type
+    unsigned short GetEntityTypeId() const { return static_cast<unsigned short>(m_entity_type); } // Returns numerical representation of entity type
 };
 
 #endif /* ENTITY_H */

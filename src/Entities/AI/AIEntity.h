@@ -17,7 +17,7 @@ typedef struct
     Entity *entity; // Hit Entity
 } trace_t;
 
-class AIEntity : PhysicsEntity
+class AIEntity : public PhysicsEntity
 {
 private:
     unsigned char m_offset; // Offset to prevent all AI ticks from being at the same time.
