@@ -1,4 +1,7 @@
 .git_tools/*
 .vscode/*
 
+/*.gbsp
+Torment/*
+
 *.exe
