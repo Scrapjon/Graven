@@ -27,7 +27,7 @@ int Graven::Run()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	screen = SDL_SetVideoMode(g_start_width, g_start_height, 32, SDL_OPENGL | SDL_HWSURFACE);
+	screen = SDL_SetVideoMode(g_start_width, g_start_height, 8, SDL_OPENGL | SDL_HWSURFACE);
 
 	if (screen == NULL)
 	{
@@ -36,6 +36,8 @@ int Graven::Run()
 		SDL_Quit();
 		return 1;
 	}
+
+	SDL_WM_SetCaption("Graven", "Graven");
 
 	glViewport(0, 0, g_start_width, g_start_height);
 	glMatrixMode(GL_PROJECTION);
