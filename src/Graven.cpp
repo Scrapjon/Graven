@@ -1,5 +1,11 @@
 #include "Graven.h"
 
+#include "Registry/ShaderRegistry.h"
+#include "Registry/TextureRegistry.h"
+#include "Camera.h"
+
+#include "Types/GUID.h"
+
 #include <iostream>
 
 static int g_start_width = 800;
@@ -27,7 +33,7 @@ int Graven::Run()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	screen = SDL_SetVideoMode(g_start_width, g_start_height, 8, SDL_OPENGL | SDL_HWSURFACE);
+	screen = SDL_SetVideoMode(g_start_width, g_start_height, 32, SDL_OPENGL | SDL_HWSURFACE);
 
 	if (screen == NULL)
 	{
@@ -37,14 +43,40 @@ int Graven::Run()
 		return 1;
 	}
 
+	std::cout << "Loading Shader Registry...\n";
+
+	if (!ShaderRegistry::GetInstance().Initialize())
+		std::cout << "ShaderRegistry Initialization Failed Critically!\n";
+
+	std::cout << "Loading Texture Registry...\n";
+
+	if (!TextureRegistry::GetInstance().Initialize())
+		std::cout << "TextureRegistry Initialization Failed Critically!\n";
+
 	SDL_WM_SetCaption("Graven", "Graven");
 
 	glViewport(0, 0, g_start_width, g_start_height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0.f, g_start_width, g_start_height, 0.f, -1.f, 1.f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+
+	glEnable(GL_DEPTH_TEST);
+
+	vertex_t triangle[6] =
+		{
+			{-.5f, 0.5f, 0.f, /**/ 0.0f, 1.0f},
+			{0.5f, -.5f, 0.f, /**/ 1.0f, 0.0f},
+			{-.5f, -.5f, 0.f, /**/ 0.0f, 0.0f},
+			//
+			{-.5f, 0.5f, 0.f, /**/ 0.0f, 1.0f},
+			{0.5f, 0.5f, 0.f, /**/ 1.0f, 1.0f},
+			{0.5f, -.5f, 0.f, /**/ 1.0f, 0.0f},
+		};
+
+	ShaderRegistry &shaders = ShaderRegistry::GetInstance();
+	GLuint triangle_vbo = shaders.CreateVertexBuffer(triangle, 6);
+	GLuint checker_texture = TextureRegistry::GetInstance().GetTexture("test");
+
+	Camera camera;
+	camera.SetPosition(0.f, 0.f, 3.f);
+	camera.SetPerspective(45.f, (GLfloat)g_start_width / (GLfloat)g_start_height, 0.1f, 100.f);
 
 	SDL_Event event;
 
@@ -63,21 +95,21 @@ int Graven::Run()
 		glClearColor(.1f, .1f, .1f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glBegin(GL_TRIANGLES);
+		shaders.Use("default");
+		shaders.SetMatrix("u_mvp", camera.GetViewProjectionMatrix());
+		shaders.SetTexture("u_texture", checker_texture);
 
-		glColor3f(1.f, 0.f, 0.f);
-		glVertex2f(400.f, 150.f);
+		shaders.BindVertexBuffer(triangle_vbo);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		shaders.UnbindVertexBuffer();
 
-		glColor3f(0.f, 1.f, 0.f);
-		glVertex2f(600.f, 450.f);
-
-		glColor3f(0.f, 0.f, 1.f);
-		glVertex2f(200.f, 450.f);
-
-		glEnd();
+		shaders.Unuse();
 
 		SDL_GL_SwapBuffers();
 	}
+
+	shaders.DestroyVertexBuffer(triangle_vbo);
+	glDeleteTextures(1, &checker_texture);
 
 	SDL_Quit();
 

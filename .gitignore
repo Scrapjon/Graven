@@ -1,3 +1,4 @@
 .git_tools/*
+.vscode/*
 
 *.exe
