@@ -17,8 +17,8 @@ for /R src %%f in (*.cpp) do (
 	set "SOURCES=!SOURCES! "%%f""
 )
 
-echo Compiling...
+echo [GRAVEN]: COMPILING...
 g++ -Wl,-Map,output.map -DDEBUG -g -m32 -std=c++98 %SOURCES% -static-libstdc++ -IBaked -Isrc -Ivendor/SDL/include -Lvendor/SDL/lib -lopengl32 -lSDLmain -lSDL -o %OUT%
-echo Compilation Complete!
+echo [GRAVEN] COMPILATION COMPLETE!
 
 endlocal

@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 		if (!GetFilesInDir(dir_path, shader_paths))
 			throw NO_VALID_FILES;
 
-		FileNode *head = new FileNode(); // head is a dud, probably shouldn't be but i can get back to it.
+		FileNode *head = new FileNode();
 
 		for (size_t i = 0; i < shader_paths.size(); ++i)
 		{
