@@ -3,7 +3,7 @@
 
 #include "Entities/AI/AIEntity.h"
 
-class FlyingAIEntity : AIEntity
+class FlyingAIEntity : public AIEntity
 {
 protected:
     FlyingAIEntity(entity_type_t entity_type) : AIEntity(entity_type) {}

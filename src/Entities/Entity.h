@@ -59,7 +59,7 @@ public:
     virtual void Tick(float delta_time) = 0;
     virtual void EndPlay() = 0;
 
-    virtual void Draw() = 0;
+    virtual void Draw() { _mesh.Draw(); }
 
     bool Damage(Object *causer, damage_type_t reason, unsigned int amount);
     virtual void HandleDeath(Object *causer, damage_type_t reason) = 0;

@@ -12,7 +12,7 @@ public:
     virtual void Think(float) {};
     virtual void BeginPlay() {};
     virtual void EndPlay() {};
-    virtual void Draw() {};
+    virtual void Draw() { GroundAIEntity::Draw(); };
     virtual void HandleDeath(Object *, damage_type_t) {};
 };
 
