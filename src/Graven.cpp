@@ -5,6 +5,7 @@
 #include "Camera.h"
 
 #include "Types/GUID.h"
+#include "Types/Vector.h"
 
 #include <iostream>
 
