@@ -48,7 +48,8 @@ protected:
 
 	mesh_t _mesh;
 
-	Entity(entity_type_t entity_type) : m_entity_type(entity_type)
+	Entity(entity_type_t entity_type)
+		: m_entity_type(entity_type), _health(100), _flags(EFLAG_NONE), _mesh()
 	{
 		assert(entity_type != ET_ENTITY && "Entity initialized as Entity Type (ET_ENTITY)");
 	}

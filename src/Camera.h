@@ -3,12 +3,14 @@
 
 #include <cmath>
 
+#include "Types/Vector.h"
+
 class Camera
 {
 public:
 	Camera()
 		: m_yaw(-90.f), m_pitch(0.f),
-		  m_fovy_degrees(45.f),
+		  m_fovy_degrees(60.f),
 		  m_aspect(4.f / 3.f),
 		  m_znear(0.1f), m_zfar(100.f),
 		  m_dirty(true)
@@ -18,6 +20,7 @@ public:
 	}
 
 	void SetPosition(float x, float y, float z);
+	void SetPosition(vec3_t v);
 
 	void GetPosition(float &x, float &y, float &z) const;
 
@@ -44,6 +47,11 @@ public:
 	const float *GetProjectionMatrix();
 
 	const float *GetViewProjectionMatrix();
+
+	const float GetYaw() { return m_yaw; }
+	const float GetPitch() { return m_pitch; }
+	const vec3_t GetForward() { return vec3_t(m_forward[0], m_forward[1], m_forward[2]); }
+	const vec3_t GetRight() { return vec3_t(m_right[0], m_right[1], m_right[2]); }
 
 private:
 	static float ClampPitch(float pitch_degrees);

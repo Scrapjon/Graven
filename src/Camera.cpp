@@ -8,6 +8,14 @@ void Camera::SetPosition(float x, float y, float z)
 	m_dirty = true;
 }
 
+void Camera::SetPosition(vec3_t v)
+{
+	m_position[0] = v.x;
+	m_position[1] = v.y;
+	m_position[2] = v.z;
+	m_dirty = true;
+}
+
 void Camera::GetPosition(float &x, float &y, float &z) const
 {
 	x = m_position[0];

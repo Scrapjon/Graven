@@ -3,6 +3,7 @@
 
 #include "Entities/Entity.h"
 #include "Types/Faction.h"
+#include "Types/Trace.h"
 
 class PhysicsEntity : public Entity
 {
@@ -11,7 +12,11 @@ protected:
 	vec3_t _accel;
 	float _mass;
 
-	PhysicsEntity(entity_type_t entity_type) : Entity(entity_type) {}
+	bool _use_gravity;
+	bool _grounded;
+
+	PhysicsEntity(entity_type_t entity_type)
+		: Entity(entity_type), _vel(), _accel(), _mass(1.f), _use_gravity(true), _grounded(false), faction(FC_BADGUYS) {}
 
 	virtual ~PhysicsEntity() {};
 
@@ -19,7 +24,9 @@ public:
 	faction_t faction;
 
 	virtual void BeginPlay() = 0;
-	virtual void Tick(float delta_time) = 0; // TODO: Implement handling of physics
+
+	virtual void Tick(float delta_time);
+
 	virtual void EndPlay() = 0;
 
 	const vec3_t &GetVelocity() { return _vel; }
@@ -30,6 +37,14 @@ public:
 
 	float GetMass() { return _mass; }
 	void SetMass(float mass) { _mass = mass; }
+
+	void SetUseGravity(bool use_gravity) { _use_gravity = use_gravity; }
+
+	// True If Entity Was On Geometry Last Tick
+	bool IsGrounded() const { return _grounded; }
+
+private:
+	static vec3_t ClipVelocity(const vec3_t &in, const vec3_t &normal, float overbounce);
 };
 
 #endif /* PHYSICSENTITY_H */

@@ -3,6 +3,8 @@
 
 void AIEntity::Tick(float delta_time)
 {
+	PhysicsEntity::Tick(delta_time);
+
 	if ((World::GetTimer() + m_offset) % 2)
 		Think(delta_time);
 }
@@ -14,7 +16,7 @@ bool AIEntity::MoveStep(const vec3_t &move)
 
 trace_t AIEntity::Move(const vec3_t &start, const vec3_t &mins, const vec3_t &maxs, const vec3_t &end)
 {
-	return trace_t();
+	return World::Trace(start, end, mins, maxs);
 }
 
 trace_t AIEntity::Attack(damage_type_t type, unsigned short amount, float dist)

@@ -3,7 +3,11 @@
 
 #include "Camera.h"
 #include "Object.h"
+#include "Types/Brush.h"
+#include "Types/Trace.h"
+#include <string>
 #include <vector>
+#include <iostream>
 
 class World
 {
@@ -21,19 +25,31 @@ public:
 	static bool Spawn(Object *obj);
 	static void Destroy(Object *obj);
 
-private:
-	struct ObjectEntry
-	{
-		Object *obj;
-		bool pending_destroy;
-	};
+	// Load ".gmap" Level
+	static bool LoadMap(const std::string &path);
 
+	// Box Sweep Trace
+	static trace_t Trace(const vec3_t &start, const vec3_t &end, const vec3_t &mins, const vec3_t &maxs);
+
+	static float GetGravity() { return Get().m_gravity; }
+	static vec3_t GetPlayerStart() { return Get().m_player_start; }
+
+	static vec3_t GetBrushPos()
+	{
+		return Get().m_brushes[0]->GetBounds().Center();
+	}
+
+private:
 	static unsigned int s_timer;
 	static bool s_has_started;
 
 	Camera *m_camera;
 	float m_gravity;
-	std::vector<ObjectEntry> m_objects;
+	vec3_t m_player_start;
+
+	std::vector<Object *> m_objects;
+	std::vector<Object *> m_pending_destroys;
+	std::vector<brush_t *> m_brushes;
 
 	static World &Get()
 	{
@@ -42,6 +58,7 @@ private:
 	}
 
 	void Cleanup();
+	bool LoadCompiledMap(const std::string &filepath);
 
 	World();
 	~World();

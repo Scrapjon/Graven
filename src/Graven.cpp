@@ -8,6 +8,7 @@
 #include "Types/GUID.h"
 #include "Types/Vector.h"
 #include "Types/Mesh.h"
+#include "Entities/Player.h"
 
 #include <iostream>
 
@@ -77,12 +78,20 @@ int Graven::Run()
 	GLuint triangle_vbo = shaders.CreateVertexBuffer(triangle, 6);
 	GLuint checker_texture = TextureRegistry::GetInstance().GetTexture("test");
 
-	Camera camera;
-	World::SetActiveCamera(&camera);
+	// Camera camera;
+	// World::SetActiveCamera(&camera);
 
-	World::GetActiveCamera()->SetPosition(1.f, -1.f, 3.f);
-	World::GetActiveCamera()->AddYawPitch(-20.f, 10.f);
-	World::GetActiveCamera()->SetPerspective(45.f, (GLfloat)g_start_width / (GLfloat)g_start_height, 0.1f, 100.f);
+	// World::GetActiveCamera()->SetPosition(96.f, 1000.f, 0.f);
+	// World::GetActiveCamera()->AddYawPitch(-20.f, 0.f);
+	// World::GetActiveCamera()->SetPerspective(45.f, (GLfloat)g_start_width / (GLfloat)g_start_height, 0.1f, 10000.f);
+
+	World::LoadMap("./GravenHub.gmap");
+
+	Player *player = new Player();
+
+	World::Spawn(player);
+
+	player->SetPos(World::GetPlayerStart());
 
 	SDL_Event event;
 
@@ -91,6 +100,10 @@ int Graven::Run()
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+
+	// World::GetActiveCamera()->SetPosition(World::GetPlayerStart());
+
+	World::BeginPlay();
 
 	while (running)
 	{
@@ -117,12 +130,17 @@ int Graven::Run()
 		// glDrawArrays(GL_TRIANGLES, 0, 6);
 		// shaders.UnbindVertexBuffer();
 
+		World::Draw();
+
 		mesh.Draw();
 
 		shaders.Unuse();
 
 		SDL_GL_SwapBuffers();
 	}
+
+	delete player;
+	player = 0;
 
 	shaders.DestroyVertexBuffer(triangle_vbo);
 	glDeleteTextures(1, &checker_texture);

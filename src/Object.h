@@ -13,7 +13,9 @@ class Object
 public:
 	const char *name;
 
-	Object() {};
+	Object()
+		: m_guid(guid_t::GetNewGUID()), m_tick_enabled(true), name("Entity"),
+		  _pos(), _rot(), _scale(vec3_t(1.f)), _size(vec3_t(32.f)) {};
 	virtual ~Object() {};
 
 	guid_t GetGuid() const { return m_guid; }

@@ -2,20 +2,9 @@
 #define AIENTITY_H
 
 #include "Entities/PhysicsEntity.h"
+#include "Types/Trace.h"
 
 #define MAX_AI_OFFSET 3
-
-typedef struct
-{
-	bool all_solid;	  // If True, Plane Is Not Valid
-	bool start_solid; // If True, Trace Was Start Penetrating
-	bool in_open;
-	bool in_water;
-	float fraction; // Percent Of The Trace Dist Hit (1.f Didn't Hit Anything)
-	vec3_t end_pos; // Hit Pos
-	vec3_t normal;	// Hit Normal
-	Entity *entity; // Hit Entity
-} trace_t;
 
 class AIEntity : public PhysicsEntity
 {
