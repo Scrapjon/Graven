@@ -3,8 +3,10 @@
 
 typedef struct guid_t
 {
+private:
 	unsigned long value;
 
+public:
 	guid_t(unsigned long v = 0) : value(v) {}
 
 	static guid_t GetNewGUID()
