@@ -1,7 +1,26 @@
 varying vec2 v_texcoord;
 uniform sampler2D u_texture;
+
+
+/*
+* This function is very much WIP as I have never used GLSL before lol
+* - Oliver
+*/
+vec4 getAmbientLighting() {
+	vec3 lightColor = vec3(1., 1., 1.); /*temp*/
+	vec3 objectColor = lightColor; /*temp*/
+	float ambientStrength = 0.1;
+
+   	vec3 ambient = ambientStrength * lightColor;
+   	vec3 result = ambient * objectColor;
+	return vec4(result, 1.0);
+}
+
+
 void main() {
-   vec4 tex = texture2D(u_texture, v_texcoord);
-   if(tex.r * 255.f == 159.f && tex.g * 255.f == 91.f && tex.b * 255.f == 83.f) discard;
-   gl_FragColor = tex;
+
+   	vec4 tex = texture2D(u_texture, v_texcoord);
+   	if(tex.r * 255. == 159. && tex.g * 255. == 91. && tex.b * 255. == 83.) discard;
+
+   	gl_FragColor = tex * getAmbientLighting();
 }
