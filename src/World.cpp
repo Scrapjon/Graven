@@ -198,8 +198,8 @@ void World::CheckTriggers()
 					continue;
 
 				obj->SetPos(dest->second);
+				break;
 			}
-
 			case TT_CMD:
 			{
 				std::cout << "NOT IMPLEMENTED\n";

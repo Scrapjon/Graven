@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cstddef>
 
-#include "Baked/ShaderSources.h"
+#include "ShaderSources.h"
 
 #include "Types/Vertex.h"
 
