@@ -3,4 +3,6 @@
 int main()
 {
     std::cout << "VIDEO GAME!\n";
+
+    return 0;
 }
