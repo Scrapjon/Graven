@@ -6,14 +6,14 @@
 class EnemyWizard : GroundAIEntity
 {
 public:
-    EnemyWizard() : GroundAIEntity(ET_ENEMY_WIZARD) {}
-    virtual ~EnemyWizard() {}
+	EnemyWizard() : GroundAIEntity(ET_ENEMY_WIZARD) {}
+	virtual ~EnemyWizard() {}
 
-    virtual void Think(float) {};
-    virtual void BeginPlay() {};
-    virtual void EndPlay() {};
-    virtual void Draw() { GroundAIEntity::Draw(); };
-    virtual void HandleDeath(Object *, damage_type_t) {};
+	virtual void Think(float) {};
+	virtual void BeginPlay() {};
+	virtual void EndPlay() {};
+	virtual void Draw() { GroundAIEntity::Draw(); };
+	virtual void HandleDeath(Object *, damage_type_t) {};
 };
 
 #endif /* ENEMYWIZARD_H */

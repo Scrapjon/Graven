@@ -2,10 +2,10 @@
 
 void Object::Destroy()
 {
-    m_pending_kill = true;
+	m_pending_kill = true;
 }
 
 bool Object::IsValid() const
 {
-    return m_pending_kill;
+	return m_pending_kill;
 }

@@ -6,8 +6,8 @@
 class GroundAIEntity : public AIEntity
 {
 protected:
-    GroundAIEntity(entity_type_t entity_type) : AIEntity(entity_type) {}
-    virtual ~GroundAIEntity() {};
+	GroundAIEntity(entity_type_t entity_type) : AIEntity(entity_type) {}
+	virtual ~GroundAIEntity() {};
 };
 
 #endif /* GROUNDAIENTITY_H */
